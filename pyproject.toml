@@ -1,0 +1,33 @@
+[tool.poetry]
+name = "treehole"
+version = "0.1.0"
+description = "treehole new version"
+authors = ["嘉然今天吃什么 <jsclndnz@outlook.com>"]
+license = "Apache"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+sanic = { extras = ["ext"], version = "^21.12.1" }
+tortoise-orm = "^0.18.1"
+aiomysql = "^0.0.22"
+aiosqlite = "^0.17.0"
+aerich = "^0.6.2"
+pydantic = "^1.9.0"
+aiocache = {extras = ["redis", "memcached"], version = "^0.11.1"}
+ujson = "^5.1.0"
+msgpack-python = "^0.5.6"
+
+[tool.poetry.dev-dependencies]
+sanic-testing = "^0.8.2"
+pytest-asyncio = "^0.18.1"
+pytest-xdist = "^2.5.0"
+pytest-ordering = "^0.6"
+
+
+[tool.aerich]
+tortoise_orm = "settings.TORTOISE_ORM"
+location = "./migrations"
+src_folder = "./."
+[build-system]
+requires = ["poetry-core>=1.0.0"]
+build-backend = "poetry.core.masonry.api"
