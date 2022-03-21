@@ -2,7 +2,10 @@ import multiprocessing
 
 from sanic import Request, json
 
+from bbs.division import bp as division
 from config import app
+
+app.blueprint(division)
 
 
 @app.get('/')

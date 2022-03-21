@@ -3,8 +3,8 @@ from tortoise import Model, fields
 
 class Division(Model):
     name = fields.CharField(max_length=16, unique=True)
-    description = fields.CharField(max_length=100, null=True)
-    pinned = fields.JSONField(default=list)
+    description = fields.CharField(max_length=100, default='')
+    pinned = fields.JSONField(default=list, description='置顶帖')
 
     def __str__(self):
         return self.name
