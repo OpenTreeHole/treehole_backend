@@ -17,13 +17,12 @@ class User(Model):
             'show_folded': 'fold'
         }
 
-    id = fields.IntField(pk=True)
     nickname = fields.CharField(max_length=16, default='')
     favorites = fields.ManyToManyField('models.Hole', related_name='favored_by', null=True)
     # silenced = fields.JSONField(default=dict)
     config = fields.JSONField(default=_default_config)
     is_admin = False
-    
+
     # 权限在auth服务中统一配置
     # def is_silenced(self, division_id):
     #     now = datetime.now(app.config['TZ'])
