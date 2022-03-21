@@ -39,7 +39,6 @@ async def exists_or_404(cls: Type[Model], *args, **kwargs) -> bool:
 
 
 async def serialize(obj: Union[Model, QuerySet], cls: Union[PydanticModel, PydanticListModel]) -> dict:
-    print(type(obj), type(cls))
     if isinstance(obj, Model):
         return (await cls.from_tortoise_orm(obj)).dict()
     elif isinstance(obj, QuerySet):

@@ -8,9 +8,12 @@ from utils.common import models_creator
 DivisionModel, DivisionList = models_creator(Division)
 
 
+# DivisionAdd = pydantic_model_creator(Division, exclude=('id', 'pinned'))
+
+
 class DivisionAdd(BaseModel):
     name: str = Field(max_length=16)
-    description: Optional[str] = Field(max_length=100)
+    description: Optional[str] = Field(max_length=100, default='')
 
 
 class DivisionModify(DivisionAdd):

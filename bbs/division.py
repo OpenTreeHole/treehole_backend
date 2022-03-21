@@ -29,7 +29,7 @@ async def get_a_division(request: Request, id: int):
 @validate(json=DivisionAdd)
 async def add_division(request: Request, body: DivisionAdd):
     if await Division.filter(name=body.name).exists():
-        raise BadRequest(f'分区名称“{body.name}”重复')
+        raise BadRequest(f'分区名称 {body.name} 重复')
     division = await Division.create(**body.dict())
     return json(await serialize(division, DivisionModel), 201)
 
