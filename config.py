@@ -1,5 +1,27 @@
+import pytz
+from pytz import UnknownTimeZoneError
 from sanic import Sanic
 
 app = Sanic('treehole')
 app.config['MODE'] = MODE = app.config.get('MODE', 'dev')
 app.config['DEBUG'] = (app.config['MODE'] != 'production')
+try:
+    app.config['TZ'] = pytz.timezone(app.config.get('TZ', 'UTC'))
+except UnknownTimeZoneError:
+    app.config['TZ'] = pytz.timezone('utc')
+app.config.OAS_UI_DEFAULT = 'swagger'
+
+MODELS = ['user.models', 'bbs.models', 'admin.models']
+
+TORTOISE_ORM = {
+    'apps': {
+        'models': {
+            'models': MODELS + ['aerich.models']
+        }
+    },
+    'connections': {  # aerich 暂不支持 sqlite
+        'default': app.config.get('DB_URL', 'mysql://username:password@mysql:3306/treehole')
+    },
+    'use_tz': True,
+    'timezone': str(app.config['TZ'])
+}

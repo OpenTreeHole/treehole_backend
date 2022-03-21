@@ -1,0 +1,87 @@
+-- upgrade --
+CREATE TABLE IF NOT EXISTS `user` (
+    `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `nickname` VARCHAR(16) NOT NULL  DEFAULT '',
+    `config` JSON NOT NULL
+) CHARACTER SET utf8mb4;
+CREATE TABLE IF NOT EXISTS `division` (
+    `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `name` VARCHAR(16) NOT NULL UNIQUE,
+    `description` VARCHAR(100),
+    `pinned` JSON NOT NULL
+) CHARACTER SET utf8mb4;
+CREATE TABLE IF NOT EXISTS `floorhistory` (
+    `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `content` LONGTEXT NOT NULL,
+    `altered_time` DATETIME(6) NOT NULL  DEFAULT CURRENT_TIMESTAMP(6),
+    `altered_by_id` INT NOT NULL,
+    CONSTRAINT `fk_floorhis_user_fa528119` FOREIGN KEY (`altered_by_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
+) CHARACTER SET utf8mb4;
+CREATE TABLE IF NOT EXISTS `hole` (
+    `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `time_created` DATETIME(6) NOT NULL  DEFAULT CURRENT_TIMESTAMP(6),
+    `time_updated` DATETIME(6) NOT NULL  DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    `view` INT NOT NULL  DEFAULT 0,
+    `reply` INT NOT NULL  DEFAULT -1,
+    `mapping` JSON NOT NULL,
+    `hidden` BOOL NOT NULL  DEFAULT 0,
+    `division_id` INT NOT NULL,
+    CONSTRAINT `fk_hole_division_efba3a92` FOREIGN KEY (`division_id`) REFERENCES `division` (`id`) ON DELETE CASCADE
+) CHARACTER SET utf8mb4;
+CREATE TABLE IF NOT EXISTS `floor` (
+    `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `content` LONGTEXT NOT NULL,
+    `anonyname` VARCHAR(16) NOT NULL,
+    `time_created` DATETIME(6) NOT NULL  DEFAULT CURRENT_TIMESTAMP(6),
+    `time_updated` DATETIME(6) NOT NULL  DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    `like` INT NOT NULL  DEFAULT 0,
+    `like_data` JSON NOT NULL,
+    `deleted` BOOL NOT NULL  DEFAULT 0,
+    `fold` JSON NOT NULL,
+    `special_tag` VARCHAR(16) NOT NULL  DEFAULT '',
+    `storey` INT NOT NULL  DEFAULT 0,
+    `hole_id` INT NOT NULL,
+    `user_id` INT NOT NULL,
+    CONSTRAINT `fk_floor_hole_c0eb00df` FOREIGN KEY (`hole_id`) REFERENCES `hole` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_floor_user_6030a3e4` FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE
+) CHARACTER SET utf8mb4;
+CREATE TABLE IF NOT EXISTS `tag` (
+    `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `name` VARCHAR(16) NOT NULL UNIQUE,
+    `temperature` INT NOT NULL  DEFAULT 0
+) CHARACTER SET utf8mb4;
+CREATE TABLE IF NOT EXISTS `report` (
+    `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `reason` VARCHAR(100) NOT NULL,
+    `time_created` DATETIME(6) NOT NULL  DEFAULT CURRENT_TIMESTAMP(6),
+    `time_updated` DATETIME(6) NOT NULL  DEFAULT CURRENT_TIMESTAMP(6) ON UPDATE CURRENT_TIMESTAMP(6),
+    `dealed` BOOL NOT NULL  DEFAULT 0,
+    `dealed_by_id` INT,
+    `floor_id` INT NOT NULL,
+    CONSTRAINT `fk_report_user_435a3506` FOREIGN KEY (`dealed_by_id`) REFERENCES `user` (`id`) ON DELETE CASCADE,
+    CONSTRAINT `fk_report_floor_0284968c` FOREIGN KEY (`floor_id`) REFERENCES `floor` (`id`) ON DELETE CASCADE
+) CHARACTER SET utf8mb4;
+CREATE TABLE IF NOT EXISTS `aerich` (
+    `id` INT NOT NULL PRIMARY KEY AUTO_INCREMENT,
+    `version` VARCHAR(255) NOT NULL,
+    `app` VARCHAR(20) NOT NULL,
+    `content` JSON NOT NULL
+) CHARACTER SET utf8mb4;
+CREATE TABLE IF NOT EXISTS `user_hole` (
+    `user_id` INT NOT NULL,
+    `hole_id` INT NOT NULL,
+    FOREIGN KEY (`user_id`) REFERENCES `user` (`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`hole_id`) REFERENCES `hole` (`id`) ON DELETE CASCADE
+) CHARACTER SET utf8mb4;
+CREATE TABLE IF NOT EXISTS `hole_tag` (
+    `hole_id` INT NOT NULL,
+    `tag_id` INT NOT NULL,
+    FOREIGN KEY (`hole_id`) REFERENCES `hole` (`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`tag_id`) REFERENCES `tag` (`id`) ON DELETE CASCADE
+) CHARACTER SET utf8mb4;
+CREATE TABLE IF NOT EXISTS `floor_floor` (
+    `floor_rel_id` INT NOT NULL,
+    `floor_id` INT NOT NULL,
+    FOREIGN KEY (`floor_rel_id`) REFERENCES `floor` (`id`) ON DELETE CASCADE,
+    FOREIGN KEY (`floor_id`) REFERENCES `floor` (`id`) ON DELETE CASCADE
+) CHARACTER SET utf8mb4;

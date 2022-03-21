@@ -8,14 +8,17 @@ license = "Apache"
 [tool.poetry.dependencies]
 python = "^3.9"
 sanic = { extras = ["ext"], version = "^21.12.1" }
-tortoise-orm = "^0.18.1"
+tortoise-orm = {extras = ["accel"], version = "^0.18.1"}
 aiomysql = "^0.0.22"
 aiosqlite = "^0.17.0"
-aerich = "^0.6.2"
 pydantic = "^1.9.0"
-aiocache = {extras = ["redis", "memcached"], version = "^0.11.1"}
+aiocache = { extras = ["redis", "memcached"], version = "^0.11.1" }
 ujson = "^5.1.0"
 msgpack-python = "^0.5.6"
+pytz = "^2022.1"
+python-dateutil = "^2.8.2"
+aerich = "^0.6.2"
+cryptography = "^36.0.2"
 
 [tool.poetry.dev-dependencies]
 sanic-testing = "^0.8.2"
@@ -25,7 +28,7 @@ pytest-ordering = "^0.6"
 
 
 [tool.aerich]
-tortoise_orm = "settings.TORTOISE_ORM"
+tortoise_orm = "config.TORTOISE_ORM"
 location = "./migrations"
 src_folder = "./."
 [build-system]
