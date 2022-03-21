@@ -1,6 +1,7 @@
 import pytz
 from pytz import UnknownTimeZoneError
 from sanic import Sanic
+from tortoise import Tortoise
 
 app = Sanic('treehole')
 app.config['MODE'] = MODE = app.config.get('MODE', 'dev')
@@ -25,3 +26,15 @@ TORTOISE_ORM = {
     'use_tz': True,
     'timezone': str(app.config['TZ'])
 }
+
+
+@app.signal('server.init.after')
+async def init(*args, **kwargs):
+    if MODE != 'test':
+        await Tortoise.init(TORTOISE_ORM)
+
+
+@app.signal('server.shutdown.before')
+async def close(*args, **kwargs):
+    if MODE != 'test':
+        await Tortoise.close_connections()
