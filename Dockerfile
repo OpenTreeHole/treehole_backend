@@ -16,7 +16,7 @@ WORKDIR /www/backend
 
 COPY --from=builder /www/backend/.venv /www/backend/.venv
 
-COPY . /www/backend
+COPY bbs /www/backend
 
 ENV PATH="/www/backend/.venv/bin:$PATH"
 ENV SANIC_MODE="production"
