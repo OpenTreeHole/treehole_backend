@@ -1,11 +1,13 @@
-from typing import Type, Tuple
+from typing import Type, Tuple, Union
 
 import orjson
 import sanic
 from sanic import HTTPResponse
+from sanic.exceptions import NotFound
 from tortoise import Model
 from tortoise.contrib.pydantic import PydanticModel, PydanticListModel, pydantic_queryset_creator, \
     pydantic_model_creator
+from tortoise.queryset import QuerySet
 
 
 def dumps_str(*args, **kwargs) -> str:
@@ -23,17 +25,23 @@ def models_creator(cls: Type[Model]) -> Tuple[Type[PydanticModel], Type[Pydantic
     return pydantic_model_creator(cls), pydantic_queryset_creator(cls)
 
 
-from sanic.exceptions import NotFound
-
-
-async def get_object_or_404(cls, *args, **kwargs):
+async def get_object_or_404(cls: Type[Model], *args, **kwargs) -> Model:
     instance = await cls.get_or_none(*args, **kwargs)
     if not instance:
         raise NotFound(f'{cls.__name__} does not exist')
     return instance
 
 
-async def exists_or_404(cls, *args, **kwargs) -> bool:
+async def exists_or_404(cls: Type[Model], *args, **kwargs) -> bool:
     if not await cls.filter(*args, **kwargs).exists():
         raise NotFound(f'{cls.__name__} does not exist')
     return True
+
+
+async def serialize(obj: Union[Model, QuerySet], cls: Union[PydanticModel, PydanticListModel]) -> dict:
+    print(type(obj), type(cls))
+    if isinstance(obj, Model):
+        return (await cls.from_tortoise_orm(obj)).dict()
+    elif isinstance(obj, QuerySet):
+        model = await cls.from_queryset(obj)
+        return model.dict()['__root__']
