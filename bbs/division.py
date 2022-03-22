@@ -3,7 +3,8 @@ from sanic import Blueprint, Request
 from bbs.models import Division, Hole
 from bbs.serializers import DivisionListS, DivisionModel, DivisionS, DivisionDelete
 from utils import myopenapi
-from utils.common import json, get_object_or_404, exists_or_404, serialize
+from utils.orm import get_object_or_404, exists_or_404, serialize
+from utils.sanic_patch import json
 from utils.validator import validate
 
 bp = Blueprint('division')
@@ -25,6 +26,7 @@ async def get_a_division(request: Request, id: int):
 # @bp.get('/divisions/<id:int>/pinned')
 # @myopenapi.response(200, DivisionS.construct())
 # async def get_a_division(request: Request, id: int):
+#     # todo: 获取置顶帖列表
 #     division = await get_object_or_404(Division, id=id)
 #
 #     return json(await serialize(division, DivisionS))

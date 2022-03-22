@@ -1,46 +1,47 @@
-from typing import Type, Tuple, Union
+import json
+import random
+import re
 
-import orjson
-import sanic
-from sanic import HTTPResponse
-from sanic.exceptions import NotFound
-from tortoise import Model
-from tortoise.contrib.pydantic import PydanticModel, PydanticListModel, pydantic_queryset_creator, \
-    pydantic_model_creator
-from tortoise.queryset import QuerySet
+from bbs.models import Floor
 
+with open('utils/names.json', 'r', encoding='utf-8') as f:
+    NAMES = json.load(f)
 
-def dumps_str(*args, **kwargs) -> str:
-    return orjson.dumps(*args, **kwargs).decode('utf-8')
+suffix = list('1234567890')
 
 
-def json(data, *args) -> HTTPResponse:
-    if isinstance(data, str):
-        return sanic.json(data, *args, dumps=lambda x: x)
-    else:
-        return sanic.json(data, *args, dumps=dumps_str)
+def random_name(compare_set: list) -> str:
+    cnt = 0
+    while cnt < 100:
+        name = random.choice(NAMES)
+        if name not in compare_set:
+            return name
+        else:
+            cnt += 1
+    while True:
+        name = random.choice(NAMES) + random.choice(suffix)
+        if name not in compare_set:
+            return name
+        else:
+            pass
 
 
-def models_creator(cls: Type[Model]) -> Tuple[Type[PydanticModel], Type[PydanticListModel]]:
-    return pydantic_model_creator(cls), pydantic_queryset_creator(cls)
-
-
-async def get_object_or_404(cls: Type[Model], *args, **kwargs) -> Model:
-    instance = await cls.get_or_none(*args, **kwargs)
-    if not instance:
-        raise NotFound(f'{cls.__name__} does not exist')
-    return instance
-
-
-async def exists_or_404(cls: Type[Model], *args, **kwargs) -> bool:
-    if not await cls.filter(*args, **kwargs).exists():
-        raise NotFound(f'{cls.__name__} does not exist')
-    return True
-
-
-async def serialize(obj: Union[Model, QuerySet], cls: Union[PydanticModel, PydanticListModel]) -> dict:
-    if isinstance(obj, Model):
-        return (await cls.from_tortoise_orm(obj)).dict()
-    elif isinstance(obj, QuerySet):
-        model = await cls.from_queryset(obj)
-        return model.dict()['__root__']
+async def find_mentions(text: str) -> list[int]:
+    """
+    从文本中解析 mention
+    Returns:  [<Floor>]
+    """
+    s = ' ' + text
+    hole_ids = re.findall(r'[^#]#(\d+)', s)
+    mentions = []
+    if hole_ids:
+        hole_ids = list(map(lambda i: int(i), hole_ids))
+        for id in hole_ids:
+            floor = await Floor.filter(hole_id=id).first().values_list('id', flat=True)
+            mentions += floor
+    floor_ids = re.findall(r'##(\d+)', s)
+    if floor_ids:
+        floor_ids = list(map(lambda i: int(i), floor_ids))
+        floors = await Floor.filter(id__in=floor_ids).values_list('id', flat=True)
+        mentions += floors
+    return mentions

@@ -17,7 +17,7 @@ def do_validate(model: type[BaseModel], data: dict, kwargs: dict, param_name='bo
         message = ''
         for error in e.errors():
             message += f'{", ".join(error["loc"])} {error["msg"]}\n'
-        raise BadRequest(message)
+        raise BadRequest(message.strip())
     kwargs[param_name] = body
 
 

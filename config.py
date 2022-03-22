@@ -11,6 +11,7 @@ try:
 except UnknownTimeZoneError:
     app.config['TZ'] = pytz.timezone('utc')
 app.config.OAS_UI_DEFAULT = 'swagger'
+app.config.FALLBACK_ERROR_FORMAT = 'json'
 
 MODELS = ['user.models', 'bbs.models', 'admin.models']
 
@@ -38,3 +39,7 @@ async def init(*args, **kwargs):
 async def close(*args, **kwargs):
     if MODE != 'test':
         await Tortoise.close_connections()
+
+
+def get_sanic_app() -> Sanic:
+    return app

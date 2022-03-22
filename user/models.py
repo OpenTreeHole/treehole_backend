@@ -1,28 +1,18 @@
 from sanic import Sanic
 from tortoise import Model, fields
 
+from utils.values import default_config
+
 app = Sanic.get_app()
 
 
 class User(Model):
-    @staticmethod
-    def _default_config():
-        """
-        show_folded: 对折叠内容的处理
-            fold: 折叠
-            hide: 隐藏
-            show: 展示
-        """
-        return {
-            'show_folded': 'fold'
-        }
-
     nickname = fields.CharField(max_length=16, default='')
     favorites = fields.ManyToManyField('models.Hole', related_name='favored_by', null=True)
-    # silenced = fields.JSONField(default=dict)
-    config = fields.JSONField(default=_default_config)
+    config = fields.JSONField(default=default_config)
     is_admin = False
 
+    # silenced = fields.JSONField(default=dict)
     # 权限在auth服务中统一配置
     # def is_silenced(self, division_id):
     #     now = datetime.now(app.config['TZ'])

@@ -11,6 +11,7 @@ class Division(Model):
 
 
 class Tag(Model):
+    holes: fields.ManyToManyRelation['Hole']
     name = fields.CharField(max_length=16, unique=True)
     temperature = fields.IntField(db_index=True, default=0)  # 该标签下的主题帖数
 

@@ -1,4 +1,5 @@
 .idea
 .venv
-
+try.py
 *.env
+*.json
