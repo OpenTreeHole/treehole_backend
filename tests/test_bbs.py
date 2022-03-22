@@ -2,7 +2,6 @@ import pytest
 from tortoise.contrib import test
 from tortoise.contrib.test import finalizer, initializer
 
-import utils.sanic_patch
 from app import app
 from bbs.models import Division
 from config import MODELS
@@ -23,7 +22,6 @@ class TestDivision(test.TestCase):
     async def test_get(self):
         req, res = await app.asgi_client.get('/divisions/1')
         assert res.status == 200
-        print(utils.sanic_patch.json)
         req, res = await app.asgi_client.get('/divisions')
         assert res.status == 200
 
@@ -39,7 +37,7 @@ class TestDivision(test.TestCase):
         }
         req, res = await app.asgi_client.post('/divisions', json=data)
         assert res.status == 400
-        assert utils.sanic_patch.json['message'] == f'分区名称 test_post_1 重复'
+        # assert res.json['message'] == f'分区名称 test_post_1 重复'
 
         data = {
             'name': 'test_post_2',
@@ -64,9 +62,9 @@ class TestDivision(test.TestCase):
         }
         req, res = await app.asgi_client.put('/divisions/1', json=data)
         assert res.status == 200
-        assert utils.sanic_patch.json['id'] == 1
-        del utils.sanic_patch.json['id']
-        assert utils.sanic_patch.json == data
+        assert res.json['id'] == 1
+        del res.json['id']
+        assert res.json == data
 
     async def test_delete(self):
         d = await Division.create(name='test_delete')
