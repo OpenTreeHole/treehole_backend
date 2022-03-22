@@ -3,10 +3,12 @@ import multiprocessing
 from sanic import Request, json
 from tortoise.exceptions import IntegrityError
 
+from config import app
+
+print(app)
 from bbs.division import bp as division
 from bbs.floor import bp as floor
 from bbs.hole import bp as hole
-from config import app
 from utils.exceptions import integrity_error_handler
 
 app.blueprint([division, hole, floor])

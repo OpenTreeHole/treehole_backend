@@ -32,6 +32,9 @@ class Hole(Model):
     def __str__(self):
         return f'树洞#{self.pk}'
 
+    class PydanticMeta:
+        exclude = ('mapping',)
+
 
 class Floor(Model):
     hole = fields.ForeignKeyField('models.Hole', on_delete=fields.CASCADE)
@@ -50,6 +53,9 @@ class Floor(Model):
 
     def __str__(self):
         return f"{self.content[:50]}"
+
+    class PydanticMeta:
+        exclude = ('like_data',)
 
 
 class FloorHistory(Model):

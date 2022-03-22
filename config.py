@@ -29,6 +29,10 @@ TORTOISE_ORM = {
 }
 
 
+# tortoise generate pydantic model prefetch all related
+# Tortoise.init_models(MODELS, 'models')
+
+
 @app.signal('server.init.after')
 async def init(*args, **kwargs):
     if MODE != 'test':

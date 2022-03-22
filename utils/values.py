@@ -1,8 +1,8 @@
 from datetime import datetime
 
-from config import get_sanic_app
+from sanic import Sanic
 
-app = get_sanic_app()
+app = Sanic.get_app()
 
 LENGTH = 10
 
