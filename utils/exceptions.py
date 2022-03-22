@@ -1,4 +1,5 @@
 from sanic.exceptions import SanicException
+from tortoise.exceptions import IntegrityError
 
 
 class BadRequest(SanicException):
@@ -9,3 +10,7 @@ class BadRequest(SanicException):
 
 class ValidationError(BadRequest):
     message = 'Validation Error'
+
+
+async def integrity_error_handler(request, exception: IntegrityError):
+    raise BadRequest(str(exception))

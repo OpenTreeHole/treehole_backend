@@ -1,9 +1,11 @@
 import multiprocessing
 
 from sanic import Request, json
+from tortoise.exceptions import IntegrityError
 
 from bbs.division import bp as division
 from config import app
+from utils.exceptions import integrity_error_handler
 
 app.blueprint(division)
 
@@ -12,6 +14,8 @@ app.blueprint(division)
 async def home(request: Request):
     return json({'message': 'hello world'})
 
+
+app.error_handler.add(IntegrityError, integrity_error_handler)
 
 if __name__ == '__main__':
     app.run(
