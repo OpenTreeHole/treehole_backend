@@ -20,6 +20,7 @@ class Tag(Model):
 
 
 class Hole(Model):
+    floors: fields.ForeignKeyRelation['Floor']
     time_created = fields.DatetimeField(auto_now_add=True)
     time_updated = fields.DatetimeField(auto_now=True, db_index=True)
     tags = fields.ManyToManyField('models.Tag', null=True)

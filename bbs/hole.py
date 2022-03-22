@@ -2,7 +2,7 @@ from sanic import Blueprint, Request
 
 from bbs.floor import inner_add_a_floor
 from bbs.models import Hole, Tag
-from bbs.serializers import HoleS, HoleListS, HoleListGet, HoleAdd, FloorAdd
+from bbs.serializers import HoleS, HoleListS, HoleListGet, HoleAdd, FloorAdd, serialize_hole, HoleModel
 from utils import myopenapi
 from utils.orm import get_object_or_404, serialize
 from utils.sanic_patch import json
@@ -12,7 +12,7 @@ bp = Blueprint('hole')
 
 
 @bp.get('/holes')
-@myopenapi.response(200, [HoleS.construct()])
+@myopenapi.response(200, [HoleModel])
 @myopenapi.body(HoleListGet)
 @validate(query=HoleListGet)
 async def list_holes(request: Request, query: HoleListGet):
@@ -29,14 +29,14 @@ async def list_holes(request: Request, query: HoleListGet):
 
 
 @bp.get('/holes/<id:int>')
-@myopenapi.response(200, HoleS.construct())
+@myopenapi.response(200, HoleModel)
 async def get_a_hole(request: Request, id: int):
     hole = await get_object_or_404(Hole, id=id)
-    return json(await serialize(hole, HoleS))
+    return json(await serialize_hole(hole))
 
 
 @bp.post('/holes')
-@myopenapi.response(200, HoleS.construct())
+@myopenapi.response(200, HoleModel)
 @myopenapi.body(HoleAdd)
 @validate(json=HoleAdd)
 async def add_a_hole(request: Request, body: HoleAdd):

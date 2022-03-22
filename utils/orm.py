@@ -1,5 +1,6 @@
 from typing import Type, Tuple, Union
 
+from pydantic import BaseModel
 from sanic.exceptions import NotFound
 from tortoise import Model
 from tortoise.contrib.pydantic import PydanticModel, PydanticListModel, pydantic_model_creator, \
@@ -30,3 +31,8 @@ async def serialize(obj: Union[MODEL, QuerySet], cls: Union[PydanticModel, Pydan
     elif isinstance(obj, QuerySet):
         model = await cls.from_queryset(obj)
         return model.dict()['__root__']
+
+
+class OrmModel(BaseModel):
+    class Config:
+        orm_mode = True
