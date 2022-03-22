@@ -26,22 +26,22 @@ def random_name(compare_set: list) -> str:
             pass
 
 
-async def find_mentions(text: str) -> list[int]:
+async def find_mentions(text: str) -> list[Floor]:
     """
     从文本中解析 mention
-    Returns:  [<Floor>]
     """
     s = ' ' + text
     hole_ids = re.findall(r'[^#]#(\d+)', s)
-    mentions = []
+    mentions: list[Floor] = []
     if hole_ids:
         hole_ids = list(map(lambda i: int(i), hole_ids))
         for id in hole_ids:
-            floor = await Floor.filter(hole_id=id).first().values_list('id', flat=True)
-            mentions += floor
+            floor = await Floor.filter(hole_id=id).first()
+            if floor:
+                mentions.append(floor)
     floor_ids = re.findall(r'##(\d+)', s)
     if floor_ids:
         floor_ids = list(map(lambda i: int(i), floor_ids))
-        floors = await Floor.filter(id__in=floor_ids).values_list('id', flat=True)
+        floors = await Floor.filter(id__in=floor_ids)
         mentions += floors
     return mentions

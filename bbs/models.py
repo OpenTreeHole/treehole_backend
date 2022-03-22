@@ -42,6 +42,7 @@ class Floor(Model):
     content = fields.TextField()
     anonyname = fields.CharField(max_length=16)
     user = fields.ForeignKeyField('models.User', fields.CASCADE)
+    user_id: int
     mention = fields.ManyToManyField('models.Floor', null=True, symmetrical=False, related_name='mentioned_by')
     time_created = fields.DatetimeField(auto_now_add=True)
     time_updated = fields.DatetimeField(auto_now=True)

@@ -2,9 +2,9 @@ from sanic import Blueprint, Request
 
 from bbs.floor import inner_add_a_floor
 from bbs.models import Hole, Tag
-from bbs.serializers import HoleS, HoleListS, HoleListGet, HoleAdd, FloorAdd, serialize_hole, HoleModel
+from bbs.serializers import HoleListGet, HoleAdd, FloorAdd, serialize_hole, HoleModel
 from utils import myopenapi
-from utils.orm import get_object_or_404, serialize
+from utils.orm import get_object_or_404
 from utils.sanic_patch import json
 from utils.validator import validate
 
@@ -25,7 +25,7 @@ async def list_holes(request: Request, query: HoleListGet):
         time_updated__lt=query.start_time,
         division_id=query.division_id
     ).limit(query.length)
-    return json(await serialize(queryset, HoleListS))
+    return json(await serialize_hole(queryset))
 
 
 @bp.get('/holes/<id:int>')
@@ -49,4 +49,4 @@ async def add_a_hole(request: Request, body: HoleAdd):
         body=FloorAdd(hole_id=hole.pk, content=body.content),
         hole=hole
     )
-    return json(await serialize(hole, HoleS))
+    return json(await serialize_hole(hole))
