@@ -1,6 +1,6 @@
 from tortoise.contrib.test import TestCase
 
-from app import app
+from main import app
 
 
 class TestHome(TestCase):

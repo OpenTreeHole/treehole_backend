@@ -1,14 +1,12 @@
 from datetime import datetime
 
-from sanic import Sanic
-
-app = Sanic.get_app()
+from config import config
 
 LENGTH = 10
 
 
 def now():
-    return datetime.now(app.config['TZ'])
+    return datetime.now(config.tz)
 
 
 def default_config():

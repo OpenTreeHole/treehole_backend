@@ -1,11 +1,12 @@
 from typing import Type, Tuple, Union
 
 from pydantic import BaseModel
-from sanic.exceptions import NotFound
 from tortoise import Model
 from tortoise.contrib.pydantic import PydanticModel, PydanticListModel, pydantic_model_creator, \
     pydantic_queryset_creator
 from tortoise.queryset import MODEL, QuerySet
+
+from utils.exceptions import NotFound
 
 
 def models_creator(cls: Type[Model], **kwargs) -> Tuple[Type[PydanticModel], Type[PydanticListModel]]:

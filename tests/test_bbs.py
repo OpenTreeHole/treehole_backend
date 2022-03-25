@@ -2,7 +2,7 @@ import pytest
 from tortoise.contrib import test
 from tortoise.contrib.test import finalizer, initializer
 
-from app import app
+from main import app
 from bbs.models import Division
 from config import MODELS
 

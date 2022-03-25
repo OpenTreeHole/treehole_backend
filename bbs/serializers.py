@@ -105,7 +105,7 @@ class DivisionModel(BaseModel):
 
 
 class DivisionDelete(BaseModel):
-    to: int = Field(default=1)
+    to: int = 1
 
 
 class TagAdd(BaseModel):

@@ -1,9 +1,6 @@
-from sanic import Sanic
 from tortoise import Model, fields
 
 from utils.values import default_config
-
-app = Sanic.get_app()
 
 
 class User(Model):
