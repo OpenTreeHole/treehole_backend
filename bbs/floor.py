@@ -14,7 +14,7 @@ bp = Blueprint('floor')
 
 @bp.get('/holes/<hole_id:int>/floors')
 @myopenapi.response(200, [FloorModel.construct()])
-@myopenapi.body(FloorGetHole.construct())
+@myopenapi.query(FloorGetHole)
 @validate(query=FloorGetHole)
 async def list_floors_in_a_hole(request: Request, query: FloorGetHole, hole_id: int):
     queryset = Floor.filter(hole_id=hole_id).offset(query.offset)

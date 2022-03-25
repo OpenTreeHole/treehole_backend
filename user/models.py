@@ -12,16 +12,5 @@ class User(Model):
     config = fields.JSONField(default=default_config)
     is_admin = False
 
-    # silenced = fields.JSONField(default=dict)
-    # 权限在auth服务中统一配置
-    # def is_silenced(self, division_id):
-    #     now = datetime.now(app.config['TZ'])
-    #     division = str(division_id)  # JSON 序列化会将字典的 int 索引转换成 str
-    #     if not self.silenced.get(division):  # 未设置禁言，返回 False
-    #         return False
-    #     else:
-    #         expire_time = parser.isoparse(self.silenced.get(division))
-    #         return expire_time > now
-
     def __str__(self):
         return f"用户#{self.pk}"

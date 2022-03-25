@@ -13,7 +13,7 @@ bp = Blueprint('hole')
 
 @bp.get('/holes')
 @myopenapi.response(200, [HoleModel])
-@myopenapi.body(HoleListGet)
+@myopenapi.query(HoleListGet)
 @validate(query=HoleListGet)
 async def list_holes(request: Request, query: HoleListGet):
     if query.tag:
