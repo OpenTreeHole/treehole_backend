@@ -5,7 +5,7 @@ from bbs.serializers import DivisionListS, DivisionModel, DivisionS, DivisionDel
 from utils.exceptions import BadRequest
 from utils.orm import get_object_or_404, exists_or_404, serialize
 
-router = APIRouter()
+router = APIRouter(tags=['division'])
 
 
 @router.get('/divisions', response_model=DivisionListS)

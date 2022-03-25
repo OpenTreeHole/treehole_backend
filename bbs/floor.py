@@ -1,39 +1,32 @@
-from sanic import Blueprint, Request
+from typing import List
+
+from fastapi import APIRouter, Request, Depends
 
 from bbs.models import Hole, Floor
-from bbs.serializers import FloorAdd, FloorModel, serialize_floor, FloorGetHole
+from bbs.serializers import FloorAdd, serialize_floor, FloorGetHole, FloorModel
 from user.models import User
-from utils import myopenapi
 from utils.common import find_mentions, random_name
 from utils.orm import get_object_or_404
-from utils.sanic_patch import json
-from utils.validator import validate
 
-bp = Blueprint('floor')
+router = APIRouter(tags=['floor'])
 
 
-@bp.get('/holes/<hole_id:int>/floors')
-@myopenapi.response(200, [FloorModel.construct()])
-@myopenapi.query(FloorGetHole)
-@validate(query=FloorGetHole)
-async def list_floors_in_a_hole(request: Request, query: FloorGetHole, hole_id: int):
+@router.get('/holes/{hole_id}/floors', response_model=List[FloorModel])
+async def list_floors_in_a_hole(hole_id: int, query: FloorGetHole = Depends()):
     queryset = Floor.filter(hole_id=hole_id).offset(query.offset)
     if query.size > 0:
         queryset = queryset.limit(query.size)
-    return json(await serialize_floor(queryset))
+    return await serialize_floor(queryset)
 
 
-@bp.post('/floors')
-@myopenapi.response(201, FloorModel.construct())
-@myopenapi.body(FloorAdd)
-@validate(json=FloorAdd)
+@router.post('/floors', response_model=FloorModel, status_code=201)
 async def add_a_floor(request: Request, body: FloorAdd):
     floor, hole = await inner_add_a_floor(
         request=request,
         body=body,
         hole=await get_object_or_404(Hole, id=body.hole_id)
     )
-    return json(await serialize_floor(floor))
+    return await serialize_floor(floor)
 
 
 async def inner_add_a_floor(request: Request, body: FloorAdd, hole: Hole) -> [Floor, Hole]:

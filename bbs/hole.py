@@ -1,21 +1,21 @@
-from sanic import Blueprint, Request
+from typing import List
+
+from fastapi import APIRouter, Request, Depends
 
 from bbs.floor import inner_add_a_floor
 from bbs.models import Hole, Tag
 from bbs.serializers import HoleListGet, HoleAdd, FloorAdd, serialize_hole, HoleModel
-from utils import myopenapi
 from utils.orm import get_object_or_404
-from utils.sanic_patch import json
-from utils.validator import validate
+from utils.values import now
 
-bp = Blueprint('hole')
+router = APIRouter(tags=['hole'])
 
 
-@bp.get('/holes')
-@myopenapi.response(200, [HoleModel])
-@myopenapi.query(HoleListGet)
-@validate(query=HoleListGet)
-async def list_holes(request: Request, query: HoleListGet):
+@router.get('/holes', response_model=List[HoleModel])
+async def list_holes(query: HoleListGet = Depends()):
+    # 在 query 中使用模型要加 =Depends()
+    if not query.start_time:
+        query.start_time = now()
     if query.tag:
         tag = await get_object_or_404(Tag, name=query.tag)
         queryset = tag.holes.all()
@@ -25,20 +25,16 @@ async def list_holes(request: Request, query: HoleListGet):
         time_updated__lt=query.start_time,
         division_id=query.division_id
     ).limit(query.length)
-    return json(await serialize_hole(queryset))
+    return await serialize_hole(queryset)
 
 
-@bp.get('/holes/<id:int>')
-@myopenapi.response(200, HoleModel)
-async def get_a_hole(request: Request, id: int):
+@router.get('/holes/{id}', response_model=HoleModel)
+async def get_a_hole(id: int):
     hole = await get_object_or_404(Hole, id=id)
-    return json(await serialize_hole(hole))
+    return await serialize_hole(hole)
 
 
-@bp.post('/holes')
-@myopenapi.response(200, HoleModel)
-@myopenapi.body(HoleAdd)
-@validate(json=HoleAdd)
+@router.post('/holes', response_model=HoleModel, status_code=201)
 async def add_a_hole(request: Request, body: HoleAdd):
     hole = await Hole.create(division_id=body.division_id)
     for tag_add in body.tags:
@@ -49,4 +45,4 @@ async def add_a_hole(request: Request, body: HoleAdd):
         body=FloorAdd(hole_id=hole.pk, content=body.content),
         hole=hole
     )
-    return json(await serialize_hole(hole))
+    return await serialize_hole(hole)

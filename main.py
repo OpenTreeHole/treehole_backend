@@ -16,7 +16,7 @@ from fastapi import FastAPI
 from tortoise.contrib.fastapi import register_tortoise
 
 app = FastAPI()  # app 实例化位于所有导入之前
-from bbs import division
+from bbs import division, floor, hole
 from config import TORTOISE_ORM
 
 register_tortoise(
@@ -26,6 +26,8 @@ register_tortoise(
     add_exception_handlers=True,
 )
 app.include_router(division.router)
+app.include_router(floor.router)
+app.include_router(hole.router)
 
 
 @app.get('/')

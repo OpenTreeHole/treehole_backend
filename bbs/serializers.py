@@ -8,7 +8,7 @@ from tortoise.queryset import QuerySet
 
 from bbs.models import Division, Hole, Floor
 from utils.orm import models_creator, OrmModel
-from utils.values import now, LENGTH
+from utils.values import LENGTH
 
 DivisionS, DivisionListS = models_creator(Division)
 HoleS, HoleListS = models_creator(Hole, exclude=('mapping',))
@@ -128,7 +128,9 @@ class FloorGetHole(BaseModel):
 
 class HoleListGet(BaseModel):
     division_id: int = 1
-    start_time: datetime = Field(default_factory=now)
+    # default_factory 在query校验中暂不支持
+    # start_time: datetime = Field(default_factory=now)
+    start_time: Optional[datetime]
     length: int = Field(default=LENGTH, le=LENGTH, ge=0)
     tag: Optional[str]
 
