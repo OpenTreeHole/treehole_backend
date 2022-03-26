@@ -1,3 +1,5 @@
+from typing import List
+
 from fastapi import APIRouter
 
 from bbs.models import Division, Hole
@@ -8,7 +10,7 @@ from utils.orm import get_object_or_404, exists_or_404, serialize
 router = APIRouter(tags=['division'])
 
 
-@router.get('/divisions', response_model=DivisionListS)
+@router.get('/divisions', response_model=List[DivisionS])
 async def list_divisions():
     return await serialize(Division.all(), DivisionListS)
 
