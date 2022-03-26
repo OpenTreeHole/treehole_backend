@@ -3,6 +3,7 @@ from datetime import tzinfo
 import pytz
 from fastapi.openapi.utils import get_openapi
 from pydantic import BaseSettings
+from tortoise.contrib.fastapi import register_tortoise
 
 from main import app
 
@@ -11,7 +12,8 @@ class Settings(BaseSettings):
     mode: str = 'dev'
     debug: bool = True
     tz: tzinfo = pytz.UTC
-    db_url: str
+    db_url: str = 'sqlite://db.sqlite3'
+    test_db: str = 'sqlite://:memory:'
 
 
 config = Settings()
@@ -30,6 +32,14 @@ TORTOISE_ORM = {
     'use_tz': True,
     'timezone': str(config.tz)
 }
+
+if config.mode != 'test':
+    register_tortoise(
+        app,
+        config=TORTOISE_ORM,
+        generate_schemas=False,
+        add_exception_handlers=True,
+    )
 
 
 def custom_openapi():

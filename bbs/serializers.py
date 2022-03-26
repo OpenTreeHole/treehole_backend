@@ -105,7 +105,7 @@ class DivisionModel(BaseModel):
 
 
 class DivisionDelete(BaseModel):
-    to: int = 1
+    to: Optional[int] = 1
 
 
 class TagAdd(BaseModel):
@@ -115,7 +115,7 @@ class TagAdd(BaseModel):
 class FloorAdd(BaseModel):
     hole_id: int
     content: str
-    special_tag: str = ''
+    special_tag: Optional[str] = ''
 
 
 class FloorGetHole(BaseModel):

@@ -30,7 +30,7 @@ async def get_a_division(id: int):
 
 @router.post('/divisions', response_model=DivisionS, status_code=201)
 async def add_division(body: DivisionModel):
-    if Division.filter(name=body.name).exists():
+    if await Division.filter(name=body.name).exists():
         raise BadRequest(f'Division name {body.name} exists')
     division = await Division.create(**body.dict())
     return await serialize(division, DivisionS)

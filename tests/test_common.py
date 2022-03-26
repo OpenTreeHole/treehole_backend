@@ -1,11 +1,11 @@
 from tortoise.contrib.test import TestCase
 
-from main import app
+from tests.test_bbs import c
 
 
 class TestHome(TestCase):
 
     async def test_get(self):
-        req, res = await app.asgi_client.get('/')
-        assert res.status == 200
-        assert res.json == {'message': 'hello world'}
+        res = c.get('/')
+        assert res.status_code == 200
+        assert res.json() == {'message': 'hello world'}

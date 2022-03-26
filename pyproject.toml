@@ -7,7 +7,6 @@ license = "Apache"
 
 [tool.poetry.dependencies]
 python = "^3.9"
-sanic = { extras = ["ext"], version = "^21.12.1" }
 tortoise-orm = {extras = ["accel"], version = "^0.18.1"}
 aiomysql = "^0.0.22"
 aiosqlite = "^0.17.0"
@@ -21,7 +20,6 @@ cryptography = "^36.0.2"
 fastapi = {extras = ["all"], version = "^0.75.0"}
 
 [tool.poetry.dev-dependencies]
-sanic-testing = "^0.8.2"
 pytest-asyncio = "^0.18.1"
 pytest-xdist = "^2.5.0"
 pytest-ordering = "^0.6"
