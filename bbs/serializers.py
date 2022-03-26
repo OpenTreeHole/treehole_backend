@@ -7,8 +7,8 @@ from pydantic import BaseModel, Field
 from tortoise.queryset import QuerySet
 
 from bbs.models import Division, Hole, Floor
+from config import config
 from utils.orm import models_creator, OrmModel
-from utils.values import LENGTH
 
 DivisionS, DivisionListS = models_creator(Division)
 HoleS, HoleListS = models_creator(Hole, exclude=('mapping',))
@@ -120,7 +120,7 @@ class FloorAdd(BaseModel):
 
 class FloorGetHole(BaseModel):
     offset: int = Field(default=0, ge=0, alias='start_floor')
-    size: int = Field(default=LENGTH, ge=0, alias='length')
+    size: int = Field(default=config.default_size, ge=0, alias='length')
 
     class Config:
         allow_population_by_field_name = True
@@ -128,10 +128,10 @@ class FloorGetHole(BaseModel):
 
 class HoleListGet(BaseModel):
     division_id: int = 1
-    # default_factory 在query校验中暂不支持
+    # default_factory 在query校验中暂不支持，需要在 api 中设置默认值
     # start_time: datetime = Field(default_factory=now)
     start_time: Optional[datetime]
-    length: int = Field(default=LENGTH, le=LENGTH, ge=0)
+    length: int = Field(default=config.default_size, le=config.default_size, ge=0)
     tag: Optional[str]
 
 

@@ -1,4 +1,5 @@
 from datetime import tzinfo
+from typing import Optional
 
 import pytz
 from fastapi.openapi.utils import get_openapi
@@ -14,6 +15,7 @@ class Settings(BaseSettings):
     tz: tzinfo = pytz.UTC
     db_url: str = 'sqlite://db.sqlite3'
     test_db: str = 'sqlite://:memory:'
+    default_size: Optional[int] = 10
 
 
 config = Settings()
