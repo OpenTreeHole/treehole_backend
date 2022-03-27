@@ -3,7 +3,7 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Optional, List, Union
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, constr
 from tortoise.queryset import QuerySet
 
 from bbs.models import Division, Hole, Floor
@@ -109,12 +109,15 @@ class DivisionDelete(BaseModel):
 
 
 class TagAdd(BaseModel):
-    name: str
+    name: constr(min_length=1, max_length=16, strip_whitespace=True)
 
 
-class FloorAdd(BaseModel):
+class FloorContent(BaseModel):
+    content: constr(min_length=1, strip_whitespace=True)
+
+
+class FloorAdd(FloorContent):
     hole_id: int
-    content: str
     special_tag: Optional[str] = ''
 
 
@@ -126,16 +129,28 @@ class FloorGetHole(BaseModel):
         allow_population_by_field_name = True
 
 
-class HoleListGet(BaseModel):
-    division_id: int = 1
+class HoleListSimple(BaseModel):
     # default_factory 在query校验中暂不支持，需要在 api 中设置默认值
-    # start_time: datetime = Field(default_factory=now)
+    # start_time: Optional[datetime] = Field(default_factory=now)
     start_time: Optional[datetime]
-    length: int = Field(default=config.default_size, le=config.default_size, ge=0)
+    size: int = Field(
+        default=config.default_size,
+        le=config.default_size, ge=0,
+        alias='length'
+    )
+
+    class Config:
+        allow_population_by_field_name = True
+
+
+class HoleList(HoleListSimple):
     tag: Optional[str]
+    division_id: Optional[int] = 0
 
 
-class HoleAdd(BaseModel):
-    division_id: int = 1
-    content: str
+class HoleAdd(FloorContent):
     tags: List[TagAdd] = []
+
+
+class HoleAddOld(HoleAdd):
+    division_id: int = 1
