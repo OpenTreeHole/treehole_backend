@@ -30,11 +30,14 @@ class FloorAdd(FloorContent):
 
 
 class FloorGetHole(BaseModel):
+    offset: int = Field(default=0, ge=0)
+    size: int = Field(default=config.default_size, ge=0)
+
+
+class FloorGetHoleOld(BaseModel):
+    hole_id: int
     offset: int = Field(default=0, ge=0, alias='start_floor')
     size: int = Field(default=config.default_size, ge=0, alias='length')
-
-    class Config:
-        allow_population_by_field_name = True
 
 
 class HoleListSimple(BaseModel):
