@@ -6,8 +6,6 @@ from fastapi.openapi.utils import get_openapi
 from pydantic import BaseSettings
 from tortoise.contrib.fastapi import register_tortoise
 
-from main import app
-
 
 class Settings(BaseSettings):
     mode: str = 'dev'
@@ -19,6 +17,8 @@ class Settings(BaseSettings):
 
 
 config = Settings()
+
+from main import app
 
 MODELS = ['user.models', 'bbs.models', 'admin.models']
 
@@ -39,7 +39,7 @@ if config.mode != 'test':
     register_tortoise(
         app,
         config=TORTOISE_ORM,
-        generate_schemas=False,
+        generate_schemas=True,
         add_exception_handlers=True,
     )
 
