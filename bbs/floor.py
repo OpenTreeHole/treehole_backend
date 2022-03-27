@@ -3,7 +3,8 @@ from typing import List
 from fastapi import APIRouter, Request, Depends
 
 from bbs.models import Hole, Floor
-from bbs.serializers import FloorAdd, serialize_floor, FloorGetHole, FloorModel
+from bbs.serializers import serialize_floor, FloorModel
+from bbs.validators import FloorAdd, FloorGetHole
 from user.models import User
 from utils.common import find_mentions, random_name
 from utils.orm import get_object_or_404

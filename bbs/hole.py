@@ -6,7 +6,8 @@ from tortoise.transactions import atomic
 
 from bbs.floor import inner_add_a_floor
 from bbs.models import Hole, Tag
-from bbs.serializers import HoleListSimple, HoleAdd, FloorAdd, serialize_hole, HoleModel, HoleList, HoleAddOld
+from bbs.serializers import serialize_hole, HoleModel
+from bbs.validators import FloorAdd, HoleListSimple, HoleList, HoleAdd, HoleAddOld
 from utils.orm import get_object_or_404
 from utils.values import now
 

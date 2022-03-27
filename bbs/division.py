@@ -3,7 +3,8 @@ from typing import List
 from fastapi import APIRouter
 
 from bbs.models import Division, Hole
-from bbs.serializers import DivisionListS, DivisionModel, DivisionS, DivisionDelete
+from bbs.serializers import DivisionListS, DivisionS
+from bbs.validators import DivisionModel, DivisionDelete
 from utils.exceptions import BadRequest
 from utils.orm import get_object_or_404, exists_or_404, serialize
 
