@@ -2,5 +2,4 @@
 .venv
 try.py
 *.env
-*.json
 *.sqlite3
