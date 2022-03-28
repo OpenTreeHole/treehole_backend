@@ -1,22 +1,35 @@
+import os
 from datetime import tzinfo
 from typing import Optional
 
 import pytz
 from fastapi.openapi.utils import get_openapi
-from pydantic import BaseSettings
+from pydantic import BaseSettings, Field
+from pytz import UnknownTimeZoneError
 from tortoise.contrib.fastapi import register_tortoise
+
+
+def default_debug() -> bool:
+    return os.getenv('MODE', 'dev') != 'production'
+
+
+def parse_tz() -> tzinfo:
+    try:
+        return pytz.timezone(os.getenv('TZ', 'Asia/Shanghai'))
+    except UnknownTimeZoneError:
+        return pytz.UTC
 
 
 class Settings(BaseSettings):
     mode: str = 'dev'
-    debug: bool = True
+    debug: bool = Field(default_factory=default_debug)
     tz: tzinfo = pytz.UTC
     db_url: str = 'sqlite://db.sqlite3'
     test_db: str = 'sqlite://:memory:'
     default_size: Optional[int] = 10
 
 
-config = Settings()
+config = Settings(tz=parse_tz())
 
 from main import app
 
