@@ -3,23 +3,24 @@ from typing import List
 from fastapi import APIRouter
 
 from bbs.models import Division, Hole
-from bbs.serializers import DivisionListS, DivisionS
+from bbs.serializers import DivisionS
 from bbs.validators import DivisionModel, DivisionDelete
 from utils.exceptions import BadRequest
-from utils.orm import get_object_or_404, exists_or_404, serialize
+from utils.orm import get_object_or_404, exists_or_404
 
 router = APIRouter(tags=['division'])
 
 
 @router.get('/divisions', response_model=List[DivisionS])
 async def list_divisions():
-    return await serialize(Division.all(), DivisionListS)
+    # FastAPI 可以直接返回 ORM 对象
+    return await Division.all()
 
 
 @router.get('/divisions/{id}', response_model=DivisionS)
 async def get_a_division(id: int):
     division = await get_object_or_404(Division, id=id)
-    return await serialize(division, DivisionS)
+    return division
 
 
 # @bp.get('/divisions/<id:int>/pinned')
@@ -36,7 +37,7 @@ async def add_division(body: DivisionModel):
     if await Division.filter(name=body.name).exists():
         raise BadRequest(f'Division name {body.name} exists')
     division = await Division.create(**body.dict())
-    return await serialize(division, DivisionS)
+    return division
 
 
 @router.put('/divisions/{id}', response_model=DivisionS)
@@ -51,7 +52,7 @@ async def modify_division(body: DivisionModel, id: int):
         division.description = body.description or division.description
         division.pinned = body.pinned or division.pinned
         await division.save()
-    return await serialize(division, DivisionS)
+    return division
 
 
 @router.delete('/divisions/{id}', status_code=204)
