@@ -1,4 +1,4 @@
 #!/bin/sh
 aerich migrate
 aerich upgrade
-uvicorn --host 0.0.0.0 main:app --root-path=/api
+uvicorn --host 0.0.0.0 main:app --proxy-headers --forwarded-allow-ips='*'
