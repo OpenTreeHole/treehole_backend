@@ -1,5 +1,6 @@
 import asyncio
 import multiprocessing
+import time
 
 import uvicorn
 from aerich import Command
@@ -22,6 +23,16 @@ async def home(request: Request):
         'message': 'hello world',
         'ip': get_ip(request)
     }
+
+
+if config.debug:
+    @app.middleware('http')
+    async def add_process_time_header(request: Request, call_next):
+        start_time = time.time()
+        response = await call_next(request)
+        process_time = time.time() - start_time
+        response.headers['X-Process-Time'] = f'{process_time * 1000:.1f} ms'
+        return response
 
 
 async def migrate():
