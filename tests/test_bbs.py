@@ -3,7 +3,9 @@ from fastapi.testclient import TestClient
 from tortoise.contrib import test
 from tortoise.contrib.test import finalizer, initializer
 
-from main import app
+from utils.patch import MyFastAPI
+
+app = MyFastAPI.get_app()
 
 c = TestClient(app)
 

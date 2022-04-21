@@ -8,6 +8,8 @@ from pydantic import BaseSettings, Field
 from pytz import UnknownTimeZoneError
 from tortoise.contrib.fastapi import register_tortoise
 
+from utils.patch import MyFastAPI
+
 
 def default_debug() -> bool:
     return os.getenv('MODE', 'dev') != 'production'
@@ -31,7 +33,7 @@ class Settings(BaseSettings):
 
 config = Settings(tz=parse_tz())
 
-from main import app
+app = MyFastAPI.get_app()
 
 MODELS = ['user.models', 'bbs.models', 'admin.models']
 

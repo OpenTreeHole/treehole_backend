@@ -4,7 +4,9 @@ from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.responses import JSONResponse
 from tortoise.exceptions import IntegrityError
 
-from main import app
+from utils.patch import MyFastAPI
+
+app = MyFastAPI.get_app()
 
 
 class BadRequest(HTTPException):
