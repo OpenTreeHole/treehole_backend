@@ -1,6 +1,7 @@
 from base64 import b32encode
 from hashlib import sha3_224
-from typing import Type, Tuple, Union, Optional
+from inspect import iscoroutinefunction
+from typing import Type, Tuple, Union, Optional, List
 
 from pydantic import BaseModel
 from tortoise import Model
@@ -14,6 +15,34 @@ from utils.exceptions import NotFound
 class OrmModel(BaseModel):
     class Config:
         orm_mode = True
+
+
+class Serializer:
+    @staticmethod
+    def construct_model(obj: MODEL, **kwargs) -> MODEL:
+        return obj
+
+    @classmethod
+    async def serialize(
+            cls,
+            obj: Union[MODEL, QuerySet[MODEL]],
+            related: List[str] = None,
+            **kwargs
+    ) -> Union[MODEL, List[MODEL]]:
+        if not related:
+            related = []
+        awaitable = iscoroutinefunction(cls.construct_model)
+        if isinstance(obj, Model):
+            await obj.fetch_related(*related)
+            if awaitable:
+                return await cls.construct_model(obj, **kwargs)
+            return cls.construct_model(obj, **kwargs)
+        if isinstance(obj, QuerySet):
+            obj_list = await obj.prefetch_related(*related)
+            if awaitable:
+                return [await cls.construct_model(obj, **kwargs) for obj in obj_list]
+            return [cls.construct_model(obj, **kwargs) for obj in obj_list]
+        raise ValueError('obj must be either a tortoise object or a queryset')
 
 
 def _404_message(cls: Type[MODEL], kwargs: dict) -> str:

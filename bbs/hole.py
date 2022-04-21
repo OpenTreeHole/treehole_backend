@@ -6,7 +6,7 @@ from tortoise.transactions import atomic
 
 from bbs.floor import inner_add_a_floor
 from bbs.models import Hole, Tag
-from bbs.serializers import serialize_hole, HoleModel
+from bbs.serializers import HoleModel
 from bbs.validators import FloorAdd, HoleListSimple, HoleList, HoleAdd, HoleAddOld
 from utils.orm import get_object_or_404
 from utils.values import now
@@ -25,7 +25,7 @@ async def list_holes_by_division(division_id: int, query: HoleListSimple = Depen
     queryset = queryset.order_by('-time_updated').filter(
         time_updated__lt=query.start_time,
     ).limit(query.size)
-    return await serialize_hole(queryset)
+    return await HoleModel.serialize(queryset)
 
 
 @router.get('/holes', response_model=List[HoleModel])
@@ -42,25 +42,25 @@ async def list_holes_by_tag(query: HoleList = Depends()):
     queryset = queryset.order_by('-time_updated').filter(
         time_updated__lt=query.start_time,
     ).limit(query.size)
-    return await serialize_hole(queryset)
+    return await HoleModel.serialize(queryset)
 
 
 @router.get('/holes/{id}', response_model=HoleModel)
 async def get_a_hole(id: int):
     hole = await get_object_or_404(Hole, id=id)
-    return await serialize_hole(hole)
+    return await HoleModel.serialize(hole)
 
 
 @router.post('/divisions/{division_id}/holes', response_model=HoleModel, status_code=201)
 async def add_a_hole(request: Request, body: HoleAdd, division_id: int):
     hole = await inner_add_a_hole(request, division_id, body.content, body.tags)
-    return await serialize_hole(hole)
+    return await HoleModel.serialize(hole)
 
 
 @router.post('/holes', deprecated=True, response_model=HoleModel, status_code=201)
 async def add_a_hole_old(request: Request, body: HoleAddOld):
     hole = await inner_add_a_hole(request, body.division_id, body.content, body.tags)
-    return await serialize_hole(hole)
+    return await HoleModel.serialize(hole)
 
 
 @atomic()

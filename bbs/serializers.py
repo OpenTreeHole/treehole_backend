@@ -1,13 +1,13 @@
 from __future__ import annotations
 
 from datetime import datetime
-from typing import Optional, List, Union
+from typing import Optional, List
 
 from pydantic import BaseModel, create_model
-from tortoise.queryset import QuerySet
+from tortoise.queryset import MODEL
 
 from bbs.models import Division, Hole, Floor, Tag
-from utils.orm import models_creator, OrmModel
+from utils.orm import models_creator, OrmModel, Serializer
 
 TagModel, _ = models_creator(Tag)
 DivisionS, DivisionListS = models_creator(Division)
@@ -17,27 +17,18 @@ SimpleFloorModel, _ = models_creator(Floor)
 SimpleFloorModel = create_model('SimpleFloorModel', hole_id=(int, ...), __base__=SimpleFloorModel)
 
 
-class FloorModel(SimpleFloorModel):
+class FloorModel(SimpleFloorModel, Serializer):
     mention: List[SimpleFloorModel]
     liked: bool = False
     is_me: bool = False
 
-
-async def serialize_floor(obj: Union[Floor, QuerySet[Floor]]) -> Union[dict, List[dict]]:
-    def _construct_model(floor: Floor, user_id: int = 1) -> FloorModel:
+    @staticmethod
+    def construct_model(floor: Floor, user_id: int = 1) -> MODEL:
         # todo: user
         floor._mention = floor.mention.related_objects
         floor.liked = user_id in floor.like_data
         floor.is_me = floor.user_id == user_id
-        return FloorModel.from_orm(floor)
-
-    if isinstance(obj, Floor):
-        await obj.fetch_related('mention')
-        return _construct_model(obj).dict()
-    if isinstance(obj, QuerySet):
-        floors = await obj.prefetch_related('mention')
-        return [_construct_model(floor).dict() for floor in floors]
-    return {}
+        return floor
 
 
 class HoleFloor(BaseModel):
@@ -46,7 +37,7 @@ class HoleFloor(BaseModel):
     prefetch: List[SimpleFloorModel]
 
 
-class HoleModel(OrmModel):
+class HoleModel(OrmModel, Serializer):
     id: int
     division_id: int
     time_created: datetime
@@ -56,26 +47,17 @@ class HoleModel(OrmModel):
     hidden: bool
     tags: List[TagModel]
     floors: HoleFloor
-
-
-async def serialize_hole(obj: Union[Hole, QuerySet[Hole]]) -> Union[dict, List[dict]]:
-    async def _construct_model(hole: Hole, user_id: int = 1) -> HoleModel:
+    
+    @staticmethod
+    async def construct_model(hole: Hole, user_id: int = 1) -> Hole:
         # todo: user
         hole._tags = hole.tags.related_objects
         floor_queryset = Floor.filter(hole_id=hole.pk)
         prefetch = await floor_queryset.limit(10)
-        holefloor = HoleFloor(
+        hole_floor = HoleFloor(
             prefetch=prefetch,
             first_floor=prefetch[0] if prefetch else None,
             last_floor=await floor_queryset.order_by('-id').first()
         ),
-        hole._floors = holefloor[0]
+        hole._floors = hole_floor[0]
         return HoleModel.from_orm(hole)
-
-    if isinstance(obj, Hole):
-        await obj.fetch_related('tags')
-        return (await _construct_model(obj)).dict()
-    if isinstance(obj, QuerySet):
-        holes = await obj.prefetch_related('tags')
-        return [(await _construct_model(hole)).dict() for hole in holes]
-    return {}

@@ -3,7 +3,7 @@ from typing import List
 from fastapi import APIRouter, Request, Depends
 
 from bbs.models import Hole, Floor
-from bbs.serializers import serialize_floor, FloorModel
+from bbs.serializers import FloorModel
 from bbs.validators import FloorAdd, FloorGetHole, FloorGetHoleOld
 from user.models import User
 from utils.common import find_mentions, random_name, get_ip_location, get_ip
@@ -17,7 +17,7 @@ async def list_floors_in_a_hole(hole_id: int, query: FloorGetHole = Depends()):
     queryset = Floor.filter(hole_id=hole_id).offset(query.offset)
     if query.size > 0:
         queryset = queryset.limit(query.size)
-    return await serialize_floor(queryset)
+    return await FloorModel.serialize(queryset)
 
 
 @router.get('/floors', deprecated=True, response_model=List[FloorModel])
@@ -25,7 +25,7 @@ async def list_floors_old(query: FloorGetHoleOld = Depends()):
     queryset = Floor.filter(hole_id=query.hole_id).offset(query.offset)
     if query.size > 0:
         queryset = queryset.limit(query.size)
-    return await serialize_floor(queryset)
+    return await FloorModel.serialize(queryset)
 
 
 @router.post('/floors', response_model=FloorModel, status_code=201)
@@ -35,7 +35,7 @@ async def add_a_floor(request: Request, body: FloorAdd):
         body=body,
         hole=await get_object_or_404(Hole, id=body.hole_id)
     )
-    return await serialize_floor(floor)
+    return await FloorModel.serialize(floor)
 
 
 async def inner_add_a_floor(request: Request, body: FloorAdd, hole: Hole) -> [Floor, Hole]:
