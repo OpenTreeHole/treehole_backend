@@ -4,7 +4,7 @@ from fastapi import APIRouter, Request, Depends
 
 from bbs.models import Hole, Floor
 from bbs.serializers import FloorModel
-from bbs.validators import FloorAdd, FloorGetHole, FloorGetHoleOld
+from bbs.validators import FloorAdd, FloorGetHole, FloorGetHoleOld, FloorAddOld
 from user.models import User
 from utils.common import find_mentions, random_name, get_ip_location, get_ip
 from utils.orm import get_object_or_404
@@ -12,6 +12,9 @@ from utils.orm import get_object_or_404
 router = APIRouter(tags=['floor'])
 
 
+############
+#   GET
+############
 @router.get('/holes/{hole_id}/floors', response_model=List[FloorModel])
 async def list_floors_in_a_hole(hole_id: int, query: FloorGetHole = Depends()):
     queryset = Floor.filter(hole_id=hole_id).offset(query.offset)
@@ -28,8 +31,21 @@ async def list_floors_old(query: FloorGetHoleOld = Depends()):
     return await FloorModel.serialize(queryset)
 
 
-@router.post('/floors', response_model=FloorModel, status_code=201)
-async def add_a_floor(request: Request, body: FloorAdd):
+############
+#   POST
+############
+@router.post('/holes/{hole_id}/floors', response_model=FloorModel, status_code=201)
+async def add_a_floor(request: Request, hole_id: int, body: FloorAdd):
+    floor, hole = await inner_add_a_floor(
+        request=request,
+        body=body,
+        hole=await get_object_or_404(Hole, id=hole_id)
+    )
+    return await FloorModel.serialize(floor)
+
+
+@router.post('/floors', deprecated=True, response_model=FloorModel, status_code=201)
+async def add_a_floor_old(request: Request, body: FloorAddOld):
     floor, hole = await inner_add_a_floor(
         request=request,
         body=body,
@@ -60,3 +76,11 @@ async def inner_add_a_floor(request: Request, body: FloorAdd, hole: Hole) -> [Fl
     # TODO: 提及回复的发送通知
 
     return floor, hole
+
+############
+#   PUT
+############
+
+############
+#   DELETE
+############

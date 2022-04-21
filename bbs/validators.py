@@ -4,6 +4,7 @@ from typing import Optional, List
 from pydantic import BaseModel, Field, constr
 
 from config import config
+from utils.values import PageModel
 
 
 class DivisionModel(BaseModel):
@@ -25,8 +26,11 @@ class FloorContent(BaseModel):
 
 
 class FloorAdd(FloorContent):
-    hole_id: int
     special_tag: Optional[str] = ''
+
+
+class FloorAddOld(FloorAdd):
+    hole_id: int
 
 
 class FloorGetHole(BaseModel):
@@ -40,21 +44,13 @@ class FloorGetHoleOld(BaseModel):
     size: int = Field(default=config.default_size, ge=0, alias='length')
 
 
-class HoleListSimple(BaseModel):
+class HoleListSimple(PageModel):
     # default_factory 在query校验中暂不支持，需要在 api 中设置默认值
     # start_time: Optional[datetime] = Field(default_factory=now)
     start_time: Optional[datetime]
-    size: int = Field(
-        default=config.default_size,
-        le=config.default_size, ge=0,
-        alias='length'
-    )
-
-    class Config:
-        allow_population_by_field_name = True
 
 
-class HoleList(HoleListSimple):
+class HoleListFull(HoleListSimple):
     tag: Optional[str]
     division_id: Optional[int] = 0
 

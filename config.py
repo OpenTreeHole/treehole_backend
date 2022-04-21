@@ -29,6 +29,7 @@ class Settings(BaseSettings):
     db_url: str = 'sqlite://db.sqlite3'
     test_db: str = 'sqlite://:memory:'
     default_size: Optional[int] = 10
+    max_size: Optional[int] = 30
 
 
 config = Settings(tz=parse_tz())
