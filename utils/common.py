@@ -2,6 +2,8 @@ import json
 import random
 import re
 
+from fastapi import Request
+
 from bbs.models import Floor
 
 with open('utils/names.json', 'r', encoding='utf-8') as f:
@@ -45,3 +47,11 @@ async def find_mentions(text: str) -> list[Floor]:
         floors = await Floor.filter(id__in=floor_ids)
         mentions += floors
     return mentions
+
+
+def get_ip(request: Request) -> str:
+    x_forwarded_for: str = request.headers.get('x-forwarded-for')
+    if x_forwarded_for:
+        return x_forwarded_for.split(',')[-1].strip()
+    else:
+        return request.client.host
