@@ -52,6 +52,7 @@ class Floor(Model):
     fold = fields.JSONField(default=list)  # 折叠原因，字符串列表（原因由前端提供）
     special_tag = fields.CharField(max_length=16, default='')  # 额外字段
     storey = fields.IntField(default=0)  # 楼层数
+    ip_location = fields.CharField(max_length=50, default='')  # 地理位置
 
     def __str__(self):
         return f"{self.content[:50]}"

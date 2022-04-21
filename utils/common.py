@@ -2,7 +2,9 @@ import json
 import random
 import re
 
+import geoip2.database
 from fastapi import Request
+from geoip2.errors import AddressNotFoundError
 
 from bbs.models import Floor
 
@@ -55,3 +57,16 @@ def get_ip(request: Request) -> str:
         return x_forwarded_for.split(',')[-1].strip()
     else:
         return request.client.host
+
+
+ip_reader = geoip2.database.Reader('data/GeoLite2-City.mmdb')
+
+
+def get_ip_location(ip: str) -> str:
+    try:
+        r = ip_reader.city(ip)
+    except (AddressNotFoundError, ValueError):
+        return ''
+    country = r.country.names.get('zh-CN', '')
+    city = r.city.names.get('zh-CN', '')
+    return country + ' ' + city

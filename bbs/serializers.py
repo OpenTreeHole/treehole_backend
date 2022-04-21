@@ -3,34 +3,18 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Optional, List, Union
 
-from pydantic import BaseModel
+from pydantic import BaseModel, create_model
 from tortoise.queryset import QuerySet
 
-from bbs.models import Division, Hole, Floor
+from bbs.models import Division, Hole, Floor, Tag
 from utils.orm import models_creator, OrmModel
 
+TagModel, _ = models_creator(Tag)
 DivisionS, DivisionListS = models_creator(Division)
 HoleS, HoleListS = models_creator(Hole, exclude=('mapping',))
-FloorS, FloorListS = models_creator(Floor, exclude=('mapping',))
+SimpleFloorModel, _ = models_creator(Floor)
 
-
-class TagModel(OrmModel):
-    name: str
-    temperature: int
-
-
-class SimpleFloorModel(OrmModel):
-    id: int
-    hole_id: int
-    content: str
-    anonyname: str
-    time_created: datetime
-    time_updated: datetime
-    like: int
-    deleted: bool
-    fold: List[str]
-    special_tag: str
-    storey: int
+SimpleFloorModel = create_model('SimpleFloorModel', hole_id=(int, ...), __base__=SimpleFloorModel)
 
 
 class FloorModel(SimpleFloorModel):

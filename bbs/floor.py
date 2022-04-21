@@ -6,7 +6,7 @@ from bbs.models import Hole, Floor
 from bbs.serializers import serialize_floor, FloorModel
 from bbs.validators import FloorAdd, FloorGetHole, FloorGetHoleOld
 from user.models import User
-from utils.common import find_mentions, random_name
+from utils.common import find_mentions, random_name, get_ip_location, get_ip
 from utils.orm import get_object_or_404
 
 router = APIRouter(tags=['floor'])
@@ -52,7 +52,8 @@ async def inner_add_a_floor(request: Request, body: FloorAdd, hole: Hole) -> [Fl
         anonyname=anonyname,
         user=user,
         special_tag=body.special_tag,
-        storey=hole.reply
+        storey=hole.reply,
+        ip_location=get_ip_location(ip=get_ip(request))
     )
     mentions: List[Floor] = await find_mentions(body.content)
     await floor.mention.add(*mentions)
