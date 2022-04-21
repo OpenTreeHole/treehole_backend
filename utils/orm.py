@@ -17,7 +17,10 @@ class OrmModel(BaseModel):
         orm_mode = True
 
 
-class Serializer:
+class Serializer(OrmModel):
+    class Config:
+        related = []
+
     @staticmethod
     def construct_model(obj: MODEL, **kwargs) -> MODEL:
         return obj
@@ -26,11 +29,11 @@ class Serializer:
     async def serialize(
             cls,
             obj: Union[MODEL, QuerySet[MODEL]],
-            related: List[str] = None,
+            related: Optional[List[str]] = None,
             **kwargs
     ) -> Union[MODEL, List[MODEL]]:
         if not related:
-            related = []
+            related = cls.Config.related
         awaitable = iscoroutinefunction(cls.construct_model)
         if isinstance(obj, Model):
             await obj.fetch_related(*related)

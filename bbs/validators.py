@@ -7,7 +7,7 @@ from config import config
 from utils.values import PageModel
 
 
-class DivisionModel(BaseModel):
+class DivisionAdd(BaseModel):
     name: str = Field(max_length=16)
     description: Optional[str] = Field(max_length=100, default='')
     pinned: Optional[list[int]] = []

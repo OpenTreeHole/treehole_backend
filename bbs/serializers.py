@@ -6,13 +6,12 @@ from typing import Optional, List
 from pydantic import BaseModel, create_model
 from tortoise.queryset import MODEL
 
-from bbs.models import Division, Hole, Floor, Tag
-from utils.orm import models_creator, OrmModel, Serializer
+from bbs.models import Hole, Floor, Tag, Division
+from utils.common import order_in_given_order
+from utils.orm import Serializer, pmc
 
-TagModel, _ = models_creator(Tag)
-DivisionS, DivisionListS = models_creator(Division)
-HoleS, HoleListS = models_creator(Hole, exclude=('mapping',))
-SimpleFloorModel, _ = models_creator(Floor)
+TagModel = pmc(Tag)
+SimpleFloorModel = pmc(Floor)
 
 SimpleFloorModel = create_model('SimpleFloorModel', hole_id=(int, ...), __base__=SimpleFloorModel)
 
@@ -21,6 +20,9 @@ class FloorModel(SimpleFloorModel, Serializer):
     mention: List[SimpleFloorModel]
     liked: bool = False
     is_me: bool = False
+
+    class Config:
+        related = ['mention']
 
     @staticmethod
     def construct_model(floor: Floor, user_id: int = 1) -> MODEL:
@@ -37,7 +39,7 @@ class HoleFloor(BaseModel):
     prefetch: List[SimpleFloorModel]
 
 
-class HoleModel(OrmModel, Serializer):
+class HoleModel(Serializer):
     id: int
     division_id: int
     time_created: datetime
@@ -47,7 +49,10 @@ class HoleModel(OrmModel, Serializer):
     hidden: bool
     tags: List[TagModel]
     floors: HoleFloor
-    
+
+    class Config:
+        related = ['tags']
+
     @staticmethod
     async def construct_model(hole: Hole, user_id: int = 1) -> Hole:
         # todo: user
@@ -60,4 +65,19 @@ class HoleModel(OrmModel, Serializer):
             last_floor=await floor_queryset.order_by('-id').first()
         ),
         hole._floors = hole_floor[0]
-        return HoleModel.from_orm(hole)
+        return hole
+
+
+class DivisionModel(Serializer):
+    id: int
+    name: str
+    description: str
+    pinned: List[HoleModel]
+
+    @staticmethod
+    async def construct_model(division: Division, **kwargs) -> Division:
+        holes = Hole.filter(id__in=division.pinned)
+        holes = await HoleModel.serialize(holes)
+        holes = order_in_given_order(holes, division.pinned)
+        division.pinned = holes
+        return division
