@@ -1,7 +1,6 @@
 import json
 import random
 import re
-from bisect import bisect_left as bisect
 from typing import List
 
 import geoip2.database
@@ -78,7 +77,9 @@ def order_in_given_order(li: List[object], order: List[int]) -> List[object]:
     current = list(map(lambda x: x.id, li))
     result = []
     for i in order:
-        key = bisect(current, i)
-        if key > -1:
+        try:
+            key = current.index(i)
             result.append(li[key])
+        except ValueError:
+            pass
     return result
