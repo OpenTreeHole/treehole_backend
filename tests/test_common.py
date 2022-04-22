@@ -1,6 +1,6 @@
 from tortoise.contrib.test import TestCase
 
-from tests.test_bbs import c
+from . import c
 
 
 class TestHome(TestCase):
@@ -8,4 +8,4 @@ class TestHome(TestCase):
     async def test_get(self):
         res = c.get('/')
         assert res.status_code == 200
-        assert res.json() == {'message': 'hello world'}
+        assert res.json() == {'ip': 'testclient', 'message': 'hello world'}

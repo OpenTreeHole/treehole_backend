@@ -1,16 +1,10 @@
 import pytest
-from fastapi.testclient import TestClient
 from tortoise.contrib import test
 from tortoise.contrib.test import finalizer, initializer
 
-from utils.patch import MyFastAPI
-
-app = MyFastAPI.get_app()
-
-c = TestClient(app)
-
-from bbs.models import Division
+from bbs.models import Division, Hole
 from config import MODELS, config
+from . import c
 
 
 @pytest.fixture(scope="session", autouse=True)
@@ -22,7 +16,11 @@ def initialize_tests(request):
 class TestDivision(test.TestCase):
     async def asyncSetUp(self):
         await super().asyncSetUp()
-        await Division.create(name='1')
+        division = await Division.create(name='1')
+        holes = []
+        for i in range(3):
+            holes.append(Hole(division=division))
+        await Hole.bulk_create(holes)
 
     async def test_get(self):
         res = c.get('/divisions/1')
@@ -66,8 +64,10 @@ class TestDivision(test.TestCase):
         }
         res = c.put('/divisions/1', json=data)
         assert res.status_code == 200
-        data['id'] = 1
-        assert res.json() == data
+        json = res.json()
+        del json['id']
+        json['pinned'] = list(map(lambda x: x['id'], json['pinned']))
+        assert json == data
 
     async def test_delete(self):
         d = await Division.create(name='test_delete')
