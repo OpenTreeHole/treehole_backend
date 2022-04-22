@@ -121,9 +121,11 @@ def pmc(
         )
         return fqname + postfix
 
-    return pydantic_model_creator(cls, name=name or get_name(), exclude=exclude, include=include, computed=computed,
-                                  allow_cycles=allow_cycles, sort_alphabetically=sort_alphabetically,
-                                  exclude_readonly=exclude_readonly, meta_override=meta_override)
+    return pydantic_model_creator(
+        cls, name=name or get_name(), exclude=exclude, include=include, computed=computed,
+        allow_cycles=allow_cycles, sort_alphabetically=sort_alphabetically,
+        exclude_readonly=exclude_readonly, meta_override=meta_override
+    )
 
 
 def pqc(
@@ -162,5 +164,7 @@ def pqc(
         )
         return fqname + postfix + "_list"
 
-    return pydantic_queryset_creator(cls, name=name or get_name(), exclude=exclude, include=include, computed=computed,
-                                     allow_cycles=allow_cycles, sort_alphabetically=sort_alphabetically)
+    return pydantic_queryset_creator(
+        cls, name=name or get_name(), exclude=exclude, include=include, computed=computed,
+        allow_cycles=allow_cycles, sort_alphabetically=sort_alphabetically
+    )
