@@ -68,18 +68,6 @@ async def get_object_or_404(cls: Type[MODEL], *args, **kwargs) -> MODEL:
     return instance
 
 
-async def serialize(obj: Union[MODEL, QuerySet], cls: Union[PydanticModel, PydanticListModel]) -> dict:
-    if isinstance(obj, Model):
-        return (await cls.from_tortoise_orm(obj)).dict()
-    elif isinstance(obj, QuerySet):
-        model = await cls.from_queryset(obj)
-        return model.dict()['__root__']
-
-
-def models_creator(cls: Type[Model], **kwargs) -> Tuple[Type[PydanticModel], Type[PydanticListModel]]:
-    return pmc(cls, **kwargs), pqc(cls, **kwargs)
-
-
 # fix name bug
 
 def pmc(
