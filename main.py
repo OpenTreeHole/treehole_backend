@@ -1,6 +1,5 @@
 import asyncio
 import multiprocessing
-import time
 
 import uvicorn
 from aerich import Command
@@ -25,16 +24,6 @@ async def home(request: Request):
     }
 
 
-if config.debug:
-    @app.middleware('http')
-    async def add_process_time_header(request: Request, call_next):
-        start_time = time.time()
-        response = await call_next(request)
-        process_time = time.time() - start_time
-        response.headers['X-Process-Time'] = f'{process_time * 1000:.1f} ms'
-        return response
-
-
 async def migrate():
     command = Command(tortoise_config=TORTOISE_ORM)
     await command.init()
@@ -48,5 +37,6 @@ if __name__ == '__main__':
     uvicorn.run(
         app='main:app', host='0.0.0.0', port=8000,
         workers=1 if config.debug else multiprocessing.cpu_count(),
-        reload=config.debug
+        reload=config.debug,
+        log_level='info'
     )
