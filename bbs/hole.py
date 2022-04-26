@@ -83,3 +83,13 @@ async def inner_add_a_hole(
         hole=hole
     )
     return hole
+
+
+@router.post('/holes/{id}/tags', response_model=HoleModel, status_code=201)
+async def add_a_tag():
+    pass
+
+
+@router.delete('/holes/{id}/tags/{tag_id}', status_code=204)
+async def delete_a_tag():
+    pass
