@@ -1,9 +1,6 @@
-import time
-
 import jwt
 from fastapi import Depends
 from fastapi.security import HTTPBearer, HTTPAuthorizationCredentials
-from starlette.requests import Request
 
 from config import config
 from user.models import User
@@ -11,15 +8,6 @@ from utils.exceptions import Forbidden
 from utils.patch import MyFastAPI
 
 app = MyFastAPI.get_app()
-
-if config.debug:
-    @app.middleware('http')
-    async def add_process_time_header(request: Request, call_next):
-        start_time = time.time()
-        response = await call_next(request)
-        process_time = time.time() - start_time
-        response.headers['X-Process-Time'] = f'{process_time * 1000:.1f} ms'
-        return response
 
 token_scheme = HTTPBearer(auto_error=False)
 
