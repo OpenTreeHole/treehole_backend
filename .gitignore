@@ -4,3 +4,4 @@ try.py
 db.sqlite3*
 dataSources.xml
 data/profile.html
+.history
