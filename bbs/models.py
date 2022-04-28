@@ -48,6 +48,7 @@ class Floor(Model):
     time_updated = fields.DatetimeField(auto_now=True)
     like = fields.IntField(default=0, db_index=True)  # 赞同数
     like_data = fields.JSONField(default=list)  # 点赞记录，主键列表
+    dislike_data = fields.JSONField(default=list)  # 点踩记录，主键列表
     deleted = fields.BooleanField(default=False)  # 仅作为前端是否显示删除按钮的依据
     fold = fields.JSONField(default=list)  # 折叠原因，字符串列表（原因由前端提供）
     special_tag = fields.CharField(max_length=16, default='')  # 额外字段
@@ -58,7 +59,7 @@ class Floor(Model):
         return f"{self.content[:50]}"
 
     class PydanticMeta:
-        exclude = ('like_data',)
+        exclude = ['like_data', 'dislike_data']
 
 
 class FloorHistory(Model):

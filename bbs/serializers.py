@@ -21,6 +21,7 @@ SimpleFloorModel = create_model('SimpleFloorModel', hole_id=(int, ...), __base__
 class FloorModel(SimpleFloorModel, Serializer):
     mention: List[SimpleFloorModel]
     liked: bool = False
+    disliked: bool = False
     is_me: bool = False
 
     class Config:
@@ -32,6 +33,7 @@ class FloorModel(SimpleFloorModel, Serializer):
             logger.warn('no user passed to serialize()')
         floor._mention = floor.mention.related_objects
         floor.liked = user.pk in floor.like_data
+        floor.disliked = user.pk in floor.dislike_data
         floor.is_me = floor.user_id == user.pk
         return floor
 
