@@ -5,6 +5,7 @@ from fastapi import APIRouter, Request, Depends
 from bbs.models import Hole, Floor
 from bbs.serializers import FloorModel
 from bbs.validators import FloorAdd, FloorGetHole, FloorGetHoleOld, FloorAddOld
+from dependency import get_user
 from user.models import User
 from utils.common import find_mentions, random_name, get_ip_location, get_ip
 from utils.orm import get_object_or_404
@@ -16,11 +17,11 @@ router = APIRouter(tags=['floor'])
 #   GET
 ############
 @router.get('/holes/{hole_id}/floors', response_model=List[FloorModel])
-async def list_floors_in_a_hole(hole_id: int, query: FloorGetHole = Depends()):
+async def list_floors_in_a_hole(hole_id: int, query: FloorGetHole = Depends(), user: User = Depends(get_user)):
     queryset = Floor.filter(hole_id=hole_id).offset(query.offset)
     if query.size > 0:
         queryset = queryset.limit(query.size)
-    return await FloorModel.serialize(queryset)
+    return await FloorModel.serialize(queryset, user=user)
 
 
 @router.get('/floors', deprecated=True, response_model=List[FloorModel])

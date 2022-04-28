@@ -10,3 +10,6 @@ class User(Model):
 
     def __str__(self):
         return f"user#{self.pk}"
+
+
+anonymous_user = User()

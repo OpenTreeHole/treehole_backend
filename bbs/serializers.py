@@ -3,10 +3,12 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Optional, List
 
+from fastapi.logger import logger
 from pydantic import create_model
 from tortoise.queryset import MODEL
 
 from bbs.models import Hole, Floor, Tag, Division
+from user.models import User, anonymous_user
 from utils.common import order_in_given_order
 from utils.orm import Serializer, pmc, OrmModel
 
@@ -25,11 +27,12 @@ class FloorModel(SimpleFloorModel, Serializer):
         related = ['mention']
 
     @staticmethod
-    def construct_model(floor: Floor, user_id: int = 1) -> MODEL:
-        # todo: user
+    def construct_model(floor: Floor, user: User = anonymous_user) -> MODEL:
+        if not user.pk:
+            logger.warn('no user passed to serialize()')
         floor._mention = floor.mention.related_objects
-        floor.liked = user_id in floor.like_data
-        floor.is_me = floor.user_id == user_id
+        floor.liked = user.pk in floor.like_data
+        floor.is_me = floor.user_id == user.pk
         return floor
 
 
@@ -54,8 +57,7 @@ class HoleModel(Serializer):
         related = ['tags']
 
     @staticmethod
-    async def construct_model(hole: Hole, user_id: int = 1) -> Hole:
-        # todo: user
+    async def construct_model(hole: Hole, **kwargs) -> Hole:
         hole._tags = hole.tags.related_objects
         floor_queryset = Floor.filter(hole_id=hole.pk)
         prefetch = await floor_queryset.limit(10)
