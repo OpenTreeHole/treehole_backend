@@ -1,9 +1,12 @@
+import traceback
+
 from fastapi import HTTPException, Request
 from fastapi.exceptions import RequestValidationError
 from starlette.exceptions import HTTPException as StarletteHTTPException
 from starlette.responses import JSONResponse
 from tortoise.exceptions import IntegrityError
 
+from config import config
 from utils.patch import MyFastAPI
 
 app = MyFastAPI.get_app()
@@ -51,4 +54,15 @@ async def http_exception_handler(request, exception: StarletteHTTPException):
     return JSONResponse(
         status_code=exception.status_code,
         content={'message': exception.detail},
+    )
+
+
+@app.exception_handler(Exception)
+async def internal_server_error_handler(request, exception: Exception):
+    return JSONResponse(
+        status_code=500,
+        content={
+            'message': str(exception),
+            'detail': traceback.format_exc().split('\n') if config.debug else ''
+        },
     )
