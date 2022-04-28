@@ -3,12 +3,12 @@ from __future__ import annotations
 from datetime import datetime
 from typing import Optional, List
 
-from pydantic import BaseModel, create_model
+from pydantic import create_model
 from tortoise.queryset import MODEL
 
 from bbs.models import Hole, Floor, Tag, Division
 from utils.common import order_in_given_order
-from utils.orm import Serializer, pmc
+from utils.orm import Serializer, pmc, OrmModel
 
 TagModel = pmc(Tag)
 SimpleFloorModel = pmc(Floor)
@@ -33,7 +33,7 @@ class FloorModel(SimpleFloorModel, Serializer):
         return floor
 
 
-class HoleFloor(BaseModel):
+class HoleFloor(OrmModel):
     first_floor: Optional[SimpleFloorModel]
     last_floor: Optional[SimpleFloorModel]
     prefetch: List[SimpleFloorModel]
@@ -59,12 +59,11 @@ class HoleModel(Serializer):
         hole._tags = hole.tags.related_objects
         floor_queryset = Floor.filter(hole_id=hole.pk)
         prefetch = await floor_queryset.limit(10)
-        hole_floor = HoleFloor(
+        hole._floors = HoleFloor(
             prefetch=prefetch,
             first_floor=prefetch[0] if prefetch else None,
             last_floor=await floor_queryset.order_by('-id').first()
-        ),
-        hole._floors = hole_floor[0]
+        )
         return hole
 
 
